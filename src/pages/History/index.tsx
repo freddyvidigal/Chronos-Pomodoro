@@ -1,19 +1,27 @@
+import {
+  useEffect,
+  useState,
+} from 'react';
+
 import { TrashIcon } from 'lucide-react';
+
 import { Container } from '../../components/Container';
 import { DefaultButton } from '../../components/DefaultButton';
 import { Heading } from '../../components/Heading';
-
-import { MainTemplate } from '../../templates/MainTemplate';
-
-import styles from './styles.module.css';
+import { TaskActionTypes } from '../../contexts/TaskContext/taskActions';
 import { useTaskContext } from '../../contexts/TaskContext/useTaskContext';
+import { MainTemplate } from '../../templates/MainTemplate';
 import { formatDate } from '../../utils/formatDate';
 import { getTaskStatus } from '../../utils/getTaskStatus';
-import { sortTasks, type SortTasksOptions } from '../../utils/sortTasks';
-import { useState } from 'react';
+import {
+  sortTasks,
+  type SortTasksOptions,
+} from '../../utils/sortTasks';
+import styles from './styles.module.css';
 
 export function History() {
-  const { state } = useTaskContext();
+  const { state,     dispatch } = useTaskContext();
+  const hasTasks = state.tasks.length > 0
   const [sortTasksOptions, setSortTasksOptions] = useState<SortTasksOptions>(
     () => {
       return {
@@ -24,6 +32,16 @@ export function History() {
     },
   );
 
+  useEffect(()=>{
+    setSortTasksOptions(prevState => ({
+      ...prevState, 
+      tasks: sortTasks({
+        tasks: state.tasks,
+        direction: prevState.direction,
+        field: prevState.field,
+      }),
+    }));
+  }, [state.tasks])
   function handleSortTasks({ field }: Pick<SortTasksOptions, 'field'>) {
     const newDirection = sortTasksOptions.direction === 'desc' ? 'asc' : 'desc';
 
@@ -37,24 +55,34 @@ export function History() {
       field,
     });
   }
+  function handleResetHistory() {
+    if(!confirm("tem certeza que deseja deletar?"))return;
+
+    dispatch({type: TaskActionTypes.RESET_STATE})
+    
+  }
 
   return (
     <MainTemplate>
       <Container>
         <Heading>
           <span>History</span>
+          {hasTasks && (
           <span className={styles.buttonContainer}>
             <DefaultButton
               icon={<TrashIcon />}
               color='red'
               aria-label='Apagar todo histórico'
               title='apagar o histórico'
+              onClick={handleResetHistory}
             />
           </span>
+          )}
         </Heading>
       </Container>
 
       <Container>
+      {hasTasks && (
         <div className={styles.responsiveTable}>
           <table>
             <thead>
@@ -102,6 +130,10 @@ export function History() {
             </tbody>
           </table>
         </div>
+        )}
+        {!hasTasks && (
+          <p style={{textAlign:'center', fontWeight: 'bold'}}>Ainda não existem tarefas criadas</p>
+        )}
       </Container>
     </MainTemplate>
   );
