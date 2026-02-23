@@ -1,13 +1,18 @@
 import {
+  useEffect,
+  useState,
+} from 'react';
+
+import {
   HistoryIcon,
   HomeIcon,
   MoonIcon,
   SettingsIcon,
   SunIcon,
 } from 'lucide-react';
-import styles from './styles.module.css';
-import { useEffect, useState } from 'react';
+
 import { RouterLink } from '../RouterLink';
+import styles from './styles.module.css';
 
 type AvailableThemes = 'dark' | 'light';
 
@@ -59,7 +64,7 @@ export function Menu() {
       </RouterLink>
       <RouterLink
         className={styles.menuLink}
-        href='#'
+        href='/settings/'
         aria-label='configurações'
         title='configurações'
       >

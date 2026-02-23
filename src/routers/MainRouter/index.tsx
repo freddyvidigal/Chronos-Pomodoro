@@ -1,11 +1,17 @@
-import { Route, useLocation } from 'react-router';
-import { Routes } from 'react-router';
-import { BrowserRouter } from 'react-router';
-import { Home } from '../../pages/Home';
+import { useEffect } from 'react';
+
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router';
+
 import { AboutPomodoro } from '../../pages/AboutPomodoro';
 import { History } from '../../pages/History';
+import { Home } from '../../pages/Home';
 import { NotFound } from '../../pages/NotFound';
-import { useEffect } from 'react';
+import { Settings } from '../../pages/Settings';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -22,6 +28,7 @@ export function MainRouter() {
       <Routes>
         <Route path='/' element={<Home />}></Route>
         <Route path='/history/' element={<History />}></Route>
+        <Route path='/settings/' element={<Settings />}></Route>
         <Route path='/about-pomodoro' element={<AboutPomodoro />}></Route>
 
         <Route path='*' element={<NotFound />}></Route>
