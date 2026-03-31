@@ -1,29 +1,72 @@
-import { useRef } from 'react';
+import {
+  useEffect,
+  useRef,
+} from 'react';
 
 import { SaveIcon } from 'lucide-react';
 
+import { showMessage } from '../../adapters/showMessage';
 import { Container } from '../../components/Container';
 import { DefaultButton } from '../../components/DefaultButton';
 import { DefaultInput } from '../../components/DefaultInput';
 import { Heading } from '../../components/Heading';
+import { TaskActionTypes } from '../../contexts/TaskContext/taskActions';
 import { useTaskContext } from '../../contexts/TaskContext/useTaskContext';
 import { MainTemplate } from '../../templates/MainTemplate';
 
 export function Settings() {
-  const {state} = useTaskContext();
+  const {state, dispatch} = useTaskContext();
   const workTimeInput = useRef<HTMLInputElement>(null);
   const shortBreakTimeInput = useRef<HTMLInputElement>(null);
   const longBreakTimeInput = useRef<HTMLInputElement>(null);
   
-
+useEffect(()=> {
+    document.title = 'Configurações - Chronos Pomodoro ';
+    
+  },[])
   function handleSavaSettings(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    showMessage.dismiss();
 
-    const workTime = workTimeInput.current?.value;
-    const shortBreakTime = shortBreakTimeInput.current?.value;
-    const longBreakTime = longBreakTimeInput.current?.value;
+    const formErrors = []
 
-    console.log(workTime, shortBreakTime, longBreakTime);
+    const workTime = Number(workTimeInput.current?.value);
+    const shortBreakTime = Number(shortBreakTimeInput.current?.value);
+    const longBreakTime = Number(longBreakTimeInput.current?.value);
+
+    if(isNaN(workTime) || isNaN(shortBreakTime) || isNaN(longBreakTime)) {
+      formErrors.push('Digite apenas Números para TODOS os campos');
+    }
+
+    if (workTime <= 1 || workTime >= 99 ){
+      formErrors.push('Digite valores entre 1 e 99 para foco');
+    }
+    if (shortBreakTime <= 1 || shortBreakTime >= 30 ){
+      formErrors.push('Digite valores entre 1 e 30 para descanso curto');
+    }
+    if (longBreakTime <= 1 || longBreakTime >= 60 ){
+      formErrors.push('Digite valores entre 1 e 60 para descanso longo');
+    }
+    
+    if (formErrors.length > 0) {
+        formErrors.forEach(error => {
+          showMessage.error(error);
+        });
+        
+      return
+    }
+
+
+    dispatch({type:TaskActionTypes.CHANGE_SETTINGS,
+      payload: {
+        workTime,
+        shortBreakTime,
+        longBreakTime,
+      },
+
+        });
+
+        showMessage.success('Configurações salvas')
   }
   return (
     <MainTemplate>
@@ -42,6 +85,7 @@ export function Settings() {
             id='workTime' 
             labelText='Foco' 
             ref={workTimeInput} 
+            type='number'
             defaultValue={state.config.workTime}/>
           </div>
           <div className="formRow">
@@ -49,13 +93,15 @@ export function Settings() {
             id='shortBreakTime' 
             labelText='Descanso curto' 
             ref={shortBreakTimeInput} 
+            type='number'
             defaultValue={state.config.shortBreakTime} />
           </div>
           <div className="formRow">
             <DefaultInput 
             id='longBreakTime' 
             labelText='Descanso longo' 
-            ref={longBreakTimeInput} 
+            ref={longBreakTimeInput}
+            type='number' 
             defaultValue={state.config.longBreakTime} />
           </div>
           <div className="formRow">
