@@ -107,7 +107,7 @@ useEffect(()=> {
           <div className="formRow">
             <DefaultButton
             icon={<SaveIcon />}
-            aria-label='Salvar configuarções'
+            aria-label='Salvar configurações'
             title='Salvar configurações'
             />
           </div>
